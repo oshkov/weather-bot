@@ -45,19 +45,33 @@ async def search_city_handler(message: Message, state: FSMContext):
     # Проверка на доступ к боту
     if str(message.from_user.id) not in config.USERS:
         return
+    
+    city_name = message.text
+    request_type = 'cities'
+    
+    # Создание сессии
+    try:
+        async for session in database.get_session():
+
+            city_cache = await database.check_cache(session, city_name, request_type)
+            if city_cache:
+                cities_dict = city_cache
+            else:
+                cities_dict = gismeteo.get_cities(city_name).json()
+                await database.create_cache(session, message.from_user.id, city_name, request_type, cities_dict)
+
+    except Exception as error:
+        print(f'search_city_handler() Session error: {error}')
 
     try:
-        city_name = message.text
-        cities_list = gismeteo.get_cities(city_name).json()['response']['items']
-
-        if len(cities_list) != 0:
+        if len(cities_dict['response']['items']) != 0:
             await message.answer(
                 text=messages.SELECT_CITY,
-                reply_markup=await keyboards.SELECT_CITY(cities_list)
+                reply_markup=await keyboards.SELECT_CITY(cities_dict)
             )
 
             # Передача списка городов в состояние
-            cities_dict = {'cities_list': cities_list}
+            cities_dict = {'cities_dict': cities_dict}
             await state.update_data(cities_dict=cities_dict)
 
         else:
@@ -76,12 +90,12 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
 
     # Получение списка городов
     data = await state.get_data()
-    cities_list = data['cities_dict']['cities_list']
+    cities_dict = data['cities_dict']['cities_dict']['response']['items']
 
     # Выбранный город
     city_id = callback.data.split()[1]
 
-    for city in cities_list:
+    for city in cities_dict:
         if str(city['id']) == city_id:
             city_name = city['name']
             city_url = city['url']

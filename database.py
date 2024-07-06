@@ -92,9 +92,11 @@ class Database:
     async def create_cache(self, session, creator_id, city_id, request_type, weather_json):
         try:
             if request_type in ['today', 'tomorrow', '10-days']:
-                request_type = 'extended'
+                request_type = 'extended_weather'
             elif request_type == 'now':
-                request_type = 'current'
+                request_type = 'current_weather'
+            elif request_type == 'cities':
+                request_type = request_type
 
             request_info = RequestModel(
                 creation_time = datetime.datetime.now(pytz.timezone('Europe/Moscow')),
@@ -121,16 +123,22 @@ class Database:
     async def check_cache(self, session, city_id, request_type):
         try:
             if request_type in ['today', 'tomorrow', '10-days']:
-                request_type = 'extended'
+                request_type = 'extended_weather'
 
                 # Определение времени в 6 часов
                 timedelta = datetime.datetime.now(pytz.timezone('Europe/Moscow')) - datetime.timedelta(hours=6)
 
             elif request_type == 'now':
-                request_type = 'current'
+                request_type = 'current_weather'
 
                 # Определение времени в 1 час
                 timedelta = datetime.datetime.now(pytz.timezone('Europe/Moscow')) - datetime.timedelta(hours=1)
+
+            elif request_type == 'cities':
+                request_type = request_type
+
+                # Установка времени в очень далекое прошлое на 100 лет назад
+                timedelta = datetime.datetime(1900, 1, 1, tzinfo=pytz.timezone('Europe/Moscow'))
 
             # Получение ответа
             cached_repsonse = await session.execute(

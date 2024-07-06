@@ -40,7 +40,7 @@ async def send_notification(request_type):
                         weather = weather_cache
                     else:
                         weather = gismeteo.get_weather(user.city_id, request_type).json()
-                        await database.create_cache(session, user.id, user.city_id, request_type, weather)
+                        await database.create_cache(session, 'by-bot', user.city_id, request_type, weather)
 
                     # Добавление информации о погоде в словарь
                     city_data_dict[user.city_id] = weather
