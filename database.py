@@ -204,7 +204,7 @@ class Database:
             requests_this_month = await session.execute(
                 select(RequestModel)
                     .where(
-                        RequestModel.creator_id == user_id,
+                        RequestModel.creator_id == str(user_id),
                         RequestModel.creation_time > this_month_start
                     )
                 )

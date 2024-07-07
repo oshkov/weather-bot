@@ -5,7 +5,24 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 async def SELECT_CITY(cities_list):
     markup = []
     for city in cities_list['response']['items']:
-        markup.append([InlineKeyboardButton(text= f"{city['name']}, {city['district']['name']}", callback_data= f"add_city {city['id']}")])
+        button_text = ''
+        if city['name']:
+            button_text += city['name']
+
+        if city['district']:
+            button_text += f", {city['district']['name']}"
+
+        if city['country']['name']:
+            button_text += f", {city['country']['name']}"
+
+        if city['kind'] == 'A':
+            button_text = f'✈️ {button_text}'
+
+        country_code = city['country']['code']
+        flag = chr(ord(country_code[0]) + 0x1F1E6 - ord('A')) + chr(ord(country_code[1]) + 0x1F1E6 - ord('A'))
+        button_text = f'{flag} {button_text}'
+
+        markup.append([InlineKeyboardButton(text=button_text, callback_data= f"add_city {city['id']}")])
 
     keyboard = InlineKeyboardMarkup(inline_keyboard= markup)
     return keyboard

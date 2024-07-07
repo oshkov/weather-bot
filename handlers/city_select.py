@@ -80,7 +80,6 @@ async def search_city_handler(message: Message, state: FSMContext):
         print(f'search_city_handler() Session error: {error}')
 
     try:
-        print(cities_dict)
         if len(cities_dict['response']['items']) != 0:
             await message.answer(
                 text=messages.SELECT_CITY,
@@ -130,6 +129,18 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
                 await callback.answer(
                     text=messages.ERROR_CITY_CONNECTED,
                     show_alert=True
+                )
+                return
+            
+            # Проверка на количество запросов в этом месяце
+            if await database.check_allowed_requests(session, callback.from_user.id) == False:
+                await callback.answer(
+                    text=messages.ERROR_ALLOWED_REQUESTS,
+                    show_alert=True
+                )
+                await callback.message.edit_text(
+                    text=messages.SUCCESS_CITY_CONNECTED,
+                    reply_markup=None
                 )
                 return
 
