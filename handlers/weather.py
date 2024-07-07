@@ -24,6 +24,7 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
     if str(callback.from_user.id) not in config.USERS:
         return
 
+    # Сообщение загрузки
     await callback.message.edit_text(
         text=messages.LOADING,
         inline_message_id=callback.inline_message_id,
@@ -42,6 +43,7 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
 
             # Получение данных о пользователе
             user_info = await database.get_user_information(session, callback)
+
             city_id = user_info.city_id
             city_url = user_info.city_url
             notification_status = user_info.notification_status
@@ -51,8 +53,21 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
             if weather_cache:
                 weather = weather_cache
             else:
-                weather = gismeteo.get_weather(city_id, request_type).json()
-                await database.create_cache(session, callback.from_user.id, city_id, request_type, weather)
+                # Проверка на количество запросов в этом месяце
+                if await database.check_allowed_requests(session, user_info.id):
+                    weather = gismeteo.get_weather(city_id, request_type).json()
+                    await database.create_cache(session, callback.from_user.id, city_id, request_type, weather)
+                else:
+                    await callback.answer(
+                        text=messages.ERROR_ALLOWED_REQUESTS,
+                        show_alert=True
+                    )
+                    await callback.message.edit_text(
+                        text=callback.message.text,
+                        inline_message_id=callback.inline_message_id,
+                        reply_markup=callback.message.reply_markup
+                    )
+                    return
 
     except Exception as error:
         print(f'weather_callback_handler() Session error: {error}')
@@ -121,8 +136,13 @@ async def weather_command_handler(message: Message, state: FSMContext):
             if weather_cache:
                 weather = weather_cache
             else:
-                weather = gismeteo.get_weather(city_id, request_type).json()
-                await database.create_cache(session, message.from_user.id, city_id, request_type, weather)
+                # Проверка на количество запросов в этом месяце
+                if await database.check_allowed_requests(session, user_info.id):
+                    weather = gismeteo.get_weather(city_id, request_type).json()
+                    await database.create_cache(session, message.from_user.id, city_id, request_type, weather)
+                else:
+                    await loading_message.edit_text(text=messages.ERROR_ALLOWED_REQUESTS)
+                    return
 
     except Exception as error:
         print(f'weather_command_handler() Session error: {error}')

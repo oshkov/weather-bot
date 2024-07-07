@@ -187,3 +187,33 @@ class Database:
 
         except Exception as error:
             print(f'get_users_with_notifications() error: {error}')
+
+
+    # Проверить лимит запросов пользователя в этом месяце
+    async def check_allowed_requests(self, session, user_id):
+        try:
+            # Получение количества разрешенных запросов для пользователя
+            user = await session.get(UserModel, str(user_id))
+            allowed_requests = user.allowed_requests
+
+            # Начало текущего месяца
+            now = datetime.datetime.now()
+            this_month_start = datetime.datetime(now.year, now.month, 1)
+
+            # Получение количества запросов пользователя в этом месяце
+            requests_this_month = await session.execute(
+                select(RequestModel)
+                    .where(
+                        RequestModel.creator_id == user_id,
+                        RequestModel.creation_time > this_month_start
+                    )
+                )
+            requests_this_month = [row for row in requests_this_month.scalars()]
+
+            if len(requests_this_month) < allowed_requests:
+                return True
+            else:
+                return False
+
+        except Exception as error:
+            print(f'check_allowed_requests() error: {error}')

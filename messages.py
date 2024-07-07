@@ -6,6 +6,7 @@ months = ['января','февраля','марта','апреля','мая','
 
 
 ERROR_START = 'Произошла ошибка, попробуйте ещё раз'
+ERROR_ALLOWED_REQUESTS = '🤯 Вы сделали слишком много запросов в этом месяце\n\nДо конца месяца вы сможете получать только уведомления от бота'
 WRITE_CITY = 'Напиши название города, в котором хочешь узнать погоду'
 SELECT_CITY = 'Выбери город из предложенных'
 SELECT_CITY_ERROR = 'Произошла ошибка: город не найден\nВведи название города заново'
@@ -34,6 +35,8 @@ def get_sunrise_time(data, index_data: int):
 
     sunrise_hours = sunrise_date.hour
     sunrise_minutes = sunrise_date.minute
+    if sunrise_minutes < 10:
+        sunrise_minutes = f'0{sunrise_minutes}'
     sunrise_time = f'{sunrise_hours}:{sunrise_minutes}'
     if sunrise_date.date() != date_today:
         month = months[sunrise_date.month - 1]
@@ -48,6 +51,8 @@ def get_sunset_time(data, index_data: int):
 
     sunset_hours = sunset_date.hour
     sunset_minutes = sunset_date.minute
+    if sunset_minutes < 10:
+        sunset_minutes = f'0{sunset_minutes}'
     sunset_time = f'{sunset_hours}:{sunset_minutes}'
     if sunset_date.date() != date_today:
         month = months[sunset_date.month - 1]

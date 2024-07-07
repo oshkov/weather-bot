@@ -29,6 +29,21 @@ async def request_for_city(message: Message, state: FSMContext):
     # Проверка на доступ к боту
     if str(message.from_user.id) not in config.USERS:
         return
+    
+    # Создание сессии
+    try:
+        async for session in database.get_session():
+
+            # Получение данных о пользователе
+            user_info = await database.get_user_information(session, message)
+
+            # Проверка на количество запросов в этом месяце
+            if await database.check_allowed_requests(session, user_info.id) == False:
+                await message.answer(text=messages.ERROR_ALLOWED_REQUESTS)
+                return
+
+    except Exception as error:
+        print(f'request_for_city() Session error: {error}')
 
     await message.answer(text=messages.WRITE_CITY)
 
@@ -53,6 +68,7 @@ async def search_city_handler(message: Message, state: FSMContext):
     try:
         async for session in database.get_session():
 
+            # Проверка на наличие кэша в бд
             city_cache = await database.check_cache(session, city_name, request_type)
             if city_cache:
                 cities_dict = city_cache
@@ -64,6 +80,7 @@ async def search_city_handler(message: Message, state: FSMContext):
         print(f'search_city_handler() Session error: {error}')
 
     try:
+        print(cities_dict)
         if len(cities_dict['response']['items']) != 0:
             await message.answer(
                 text=messages.SELECT_CITY,
