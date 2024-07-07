@@ -121,8 +121,8 @@ async def weather_command_handler(message: Message, state: FSMContext):
             if weather_cache:
                 weather = weather_cache
             else:
-                weather = gismeteo.get_weather(city_id, request_type)
-                await database.create_cache(session, message.from_user.id, city_id, request_type, weather.json())
+                weather = gismeteo.get_weather(city_id, request_type).json()
+                await database.create_cache(session, message.from_user.id, city_id, request_type, weather)
 
     except Exception as error:
         print(f'weather_command_handler() Session error: {error}')

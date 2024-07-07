@@ -45,10 +45,10 @@ async def search_city_handler(message: Message, state: FSMContext):
     # Проверка на доступ к боту
     if str(message.from_user.id) not in config.USERS:
         return
-    
+
     city_name = message.text
     request_type = 'cities'
-    
+
     # Создание сессии
     try:
         async for session in database.get_session():
