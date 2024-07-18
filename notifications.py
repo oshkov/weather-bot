@@ -40,7 +40,7 @@ async def send_notification(request_type):
                         weather = weather_cache
                     else:
                         weather = gismeteo.get_weather(user.city_id, request_type).json()
-                        await database.create_cache(session, 'by-bot', user.city_id, request_type, weather)
+                        await database.create_cache(session, 'bot', user.city_id, request_type, weather)
 
                     # Добавление информации о погоде в словарь
                     city_data_dict[user.city_id] = weather
@@ -70,15 +70,15 @@ async def send_notification(request_type):
                     parse_mode='html'
                 )
 
+        # Очистка временных данных
         city_data_dict.clear()
-        print(city_data_dict)
-
 
     except Exception as error:
         print(f'send_notification() error: {error}')
 
 
 async def main():
+    print('Уведомления запущены')
     while True:
         # Получаем текущее время в Москве
         moscow_time = datetime.now(moscow_tz)

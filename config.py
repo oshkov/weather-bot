@@ -1,16 +1,20 @@
-from dotenv import load_dotenv
-import os
+import json
 
+# Функция для загрузки конфигурации из JSON-файла
+def load_config(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        config = json.load(file)
+    return config
 
-load_dotenv()
+# Загрузите конфигурацию
+config = load_config('config.json')
 
-
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
-DB_HOST = os.environ.get('DB_HOST')
-DB_PORT = os.environ.get('DB_PORT')
-DB_NAME = os.environ.get('DB_NAME')
-DB_USER = os.environ.get('DB_USER')
-DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_HOST = config['db_host']
+DB_PORT = config['db_port']
+DB_NAME = config['db_name']
+DB_USER = config['db_user']
+DB_PASSWORD = config['db_password']
+BOT_TOKEN = config['bot_token']
 DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-GISMETEO_API_TOKEN = os.environ.get('GISMETEO_API_TOKEN')
-USERS = os.environ.get('USERS').split(', ')
+GISMETEO_API_TOKEN = config['gismeteo_api_token']
+USERS = config['users']

@@ -117,3 +117,36 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
 
     except Exception as error:
         print(f'notification_switch_handler() error: {error}')
+
+
+# Команда /stats
+@router.message(F.text.contains("/stats"))
+async def stats_command_handler(message: Message, state: FSMContext):
+    # Сброс состояния при его налиции
+    await state.clear()
+
+    # Проверка на доступ к боту
+    if str(message.from_user.id) not in config.USERS:
+        return
+    
+    # Создание сессии
+    try:
+        async for session in database.get_session():
+
+            # Получение всех запросов за месяц
+            month_requests = await database.get_month_requests(session)
+
+            # Получение всех пользователей
+            users = await database.get_all_users(session)
+
+    except Exception as error:
+        print(f'stats_command_handler() Session error: {error}')
+
+    try:
+        await message.answer(
+            text=await messages.STATS(month_requests, users),
+            parse_mode='html'
+        )
+
+    except Exception as error:
+        print(f'stats_command_handler() error: {error}')

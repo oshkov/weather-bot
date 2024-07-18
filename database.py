@@ -38,8 +38,7 @@ class Database:
                     username = message.from_user.username,
                     name = message.from_user.first_name,
                     lastname = message.from_user.last_name,
-                    last_action = None,
-                    status = None,
+                    allowed_requests = None,
                     city = None,
                     city_id = None,
                     notification_status = 1
@@ -196,6 +195,9 @@ class Database:
             user = await session.get(UserModel, str(user_id))
             allowed_requests = user.allowed_requests
 
+            if allowed_requests == None:
+                return True
+
             # Начало текущего месяца
             now = datetime.datetime.now()
             this_month_start = datetime.datetime(now.year, now.month, 1)
@@ -217,3 +219,36 @@ class Database:
 
         except Exception as error:
             print(f'check_allowed_requests() error: {error}')
+
+
+    # Получение всех запросов за месяц
+    async def get_month_requests(self, session):
+        try:
+            # Начало текущего месяца
+            now = datetime.datetime.now()
+            this_month_start = datetime.datetime(now.year, now.month, 1)
+
+            month_requests = await session.execute(
+                select(RequestModel)
+                    .where(
+                        RequestModel.creation_time > this_month_start
+                    )
+                )
+            month_requests = [row for row in month_requests.scalars()]
+
+            return month_requests
+
+        except Exception as error:
+            print(f'get_month_requests() error: {error}')
+
+
+    # Получение всех пользователей
+    async def get_all_users(self, session):
+        try:
+            users = await session.execute(select(UserModel))
+            users = [row for row in users.scalars()]
+
+            return users
+
+        except Exception as error:
+            print(f'get_all_users() error: {error}')
