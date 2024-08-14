@@ -70,8 +70,10 @@ async def search_city_handler(message: Message, state: FSMContext):
 
             # Проверка на наличие кэша в бд
             city_cache = await database.check_cache(session, city_name, request_type)
+
             if city_cache:
                 cities_dict = city_cache
+
             else:
                 cities_dict = gismeteo.get_cities(city_name).json()
                 await database.create_cache(session, message.from_user.id, city_name, request_type, cities_dict)

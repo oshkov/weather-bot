@@ -4,6 +4,7 @@ from sqlalchemy import select, and_
 from models import UserModel, RequestModel
 import datetime
 import pytz
+import json
 
 
 class Database:
@@ -88,33 +89,45 @@ class Database:
 
 
     # Кэширование ответа
-    async def create_cache(self, session, creator_id, city_id, request_type, weather_json):
+    async def create_cache(self, session, creator_id, city_id, request_type, json_response):
         try:
+            # Определение типа запроса
             if request_type in ['today', 'tomorrow', '10-days']:
+                # Запрос расширенной погоды
                 request_type = 'extended_weather'
+
             elif request_type == 'now':
+                # Запрос текущей погоды
                 request_type = 'current_weather'
+
             elif request_type == 'cities':
+                # Запрос городов
                 request_type = request_type
 
+            filename = f'{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%Y-%m-%d_%H-%M-%S")}.json'
+
+            with open(f'cached_responses/{filename}', 'w', encoding='utf-8') as file:
+                json.dump(json_response, file, ensure_ascii=False, indent=4)
+
+            # Запись в базу данных
             request_info = RequestModel(
                 creation_time = datetime.datetime.now(pytz.timezone('Europe/Moscow')),
                 creator_id = str(creator_id),
                 city_id = city_id,
                 request_type = request_type,
-                response = weather_json
+                response_filename = filename
             )
 
             # Добавление данных в сессию
             session.add(request_info)
 
-            # Добавление данных в бд и сохранение
+            # Сохранение данных в бд
             await session.commit()
 
             return True
 
         except Exception as error:
-            print(f'add_user() error: {error}')
+            print(f'create_cache() error: {error}')
             return False
 
 
@@ -141,7 +154,7 @@ class Database:
 
             # Получение ответа
             cached_repsonse = await session.execute(
-                select(RequestModel.response)
+                select(RequestModel.response_filename)
                     .where(
                         and_(
                             RequestModel.request_type == request_type,
@@ -155,8 +168,19 @@ class Database:
             # Вывод последнего ответа, при его наличии
             if len(cached_repsonse) == 0:
                 return None
+
             else:
-                return cached_repsonse[-1]
+                filename = cached_repsonse[-1]
+
+                # В случае наличии записи в бд, но остутствии файла
+                if filename is None:
+                    return None
+
+                # Получение данных из файла
+                with open(f'cached_responses/{filename}', 'r', encoding='utf-8') as file:
+                    data = json.load(file)
+
+                return data
 
         except Exception as error:
             print(f'check_cache() error: {error}')

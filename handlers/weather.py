@@ -50,13 +50,16 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
 
             # Проверка на наличие кэша в бд
             weather_cache = await database.check_cache(session, city_id, request_type)
+
             if weather_cache:
                 weather = weather_cache
+
             else:
                 # Проверка на количество запросов в этом месяце
                 if await database.check_allowed_requests(session, user_info.id):
                     weather = gismeteo.get_weather(city_id, request_type).json()
                     await database.create_cache(session, callback.from_user.id, city_id, request_type, weather)
+
                 else:
                     await callback.answer(
                         text=messages.ERROR_ALLOWED_REQUESTS,
@@ -133,13 +136,16 @@ async def weather_command_handler(message: Message, state: FSMContext):
 
             # Проверка на наличие кэша в бд
             weather_cache = await database.check_cache(session, city_id, request_type)
+
             if weather_cache:
                 weather = weather_cache
+
             else:
                 # Проверка на количество запросов в этом месяце
                 if await database.check_allowed_requests(session, user_info.id):
                     weather = gismeteo.get_weather(city_id, request_type).json()
                     await database.create_cache(session, message.from_user.id, city_id, request_type, weather)
+
                 else:
                     await loading_message.edit_text(text=messages.ERROR_ALLOWED_REQUESTS)
                     return

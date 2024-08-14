@@ -27,4 +27,4 @@ class RequestModel(Base):
     creator_id = Column(Text, primary_key=True)
     city_id = Column(Text)
     request_type = Column(Text)
-    response = Column(JSON)
+    response_filename = Column(Text)
