@@ -68,7 +68,9 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
     # Сброс состояния при его налиции
     await state.clear()
 
-    request_type = callback.data.split()[1]
+    request_type = None
+    if len(callback.data.split()) > 1:
+        request_type = callback.data.split()[1]
 
     # Проверка на доступ к боту
     if str(callback.from_user.id) not in config.USERS:
