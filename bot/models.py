@@ -6,6 +6,10 @@ Base = declarative_base()
 
 
 class UserModel(Base):
+    '''
+    Модель таблицы для хранения данных пользователей
+    '''
+
     __tablename__ = 'users'
 
     enter = Column(TIMESTAMP(timezone=True))
@@ -21,6 +25,10 @@ class UserModel(Base):
 
 
 class RequestModel(Base):
+    '''
+    Модель таблицы для хранение ответов от GismeteoAPI
+    '''
+
     __tablename__ = 'requests'
 
     creation_time = Column(TIMESTAMP(timezone=True))

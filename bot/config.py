@@ -1,13 +1,12 @@
 import json
 
-# Функция для загрузки конфигурации из JSON-файла
+# Открытие конфига из JSON-файла
 def load_config(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         config = json.load(file)
     return config
 
-# Загрузите конфигурацию
-config = load_config('config.json')
+config = load_config('config.json')['config-prod']
 
 DB_HOST = config['db_host']
 DB_PORT = config['db_port']

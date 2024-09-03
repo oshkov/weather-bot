@@ -5,6 +5,8 @@
 
 ## Бот
 
+Бот разделен на два микросервиса с помощью Docker: основной бот и микросервис уведомлений.
+
 ### В боте были использованы: 
 - Aiogram 3
 - SQLalchemy
@@ -17,12 +19,7 @@
 
 ## Запуск
 
-Для запуска бота:
-```python
-python run.py
+Запуск docker-compose:
 ```
-
-Для запуска уведомлений:
-```python
-python notifications.py
+docker-compose up --build -d
 ```

@@ -62,12 +62,12 @@ async def MENU(city_url, request_type, notification_status):
         [
             InlineKeyboardButton(text=f'{notification_status} уведомления', callback_data=f'notification_switch {request_type}')
         ],
-        [
-            InlineKeyboardButton(text='🌍 Подробнее на Gismeteo', web_app=WebAppInfo(url=f'https://www.gismeteo.ru{city_url}{request_type}'))
-        ],
         # [
-        #     InlineKeyboardButton(text='Подробнее на Gismeteo', url=f'https://www.gismeteo.ru{city_url}{request_type}')
-        # ]
+        #     InlineKeyboardButton(text='🌍 Подробнее на Gismeteo', web_app=WebAppInfo(url=f'https://www.gismeteo.ru{city_url}{request_type}'))
+        # ],
+        [
+            InlineKeyboardButton(text='🌍 Подробнее на Gismeteo', url=f'https://www.gismeteo.ru{city_url}{request_type}')
+        ]
     ]
 
     keyboard = InlineKeyboardMarkup(inline_keyboard= markup)

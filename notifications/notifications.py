@@ -16,7 +16,7 @@ database = Database(config.DATABASE_URL)
 gismeteo = Gismeteo(config.GISMETEO_API_TOKEN)
 
 
-# Словарь с временными данными ("id города":"погода")
+# Словарь с временными данными {"id города":"данные о погоде"}
 city_data_dict = {}
 
 
@@ -66,7 +66,7 @@ async def send_notification(request_type):
                 await bot.send_message(
                     chat_id=user.id,
                     text=await messages.WEATHER_TOMORROW(weather),
-                    reply_markup=await keyboards.MENU(user.city_url, None, user.notification_status),
+                    reply_markup=await keyboards.MENU(user.city_url, 'tomorrow', user.notification_status),
                     parse_mode='html'
                 )
 
