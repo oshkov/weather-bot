@@ -37,6 +37,8 @@ async def start_handler(message: Message, state: FSMContext):
             
     except Exception as error:
         print(f'start_handler() Session error: {error}')
+        await message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     try:
         # Запрос города
@@ -98,6 +100,8 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
 
     except Exception as error:
         print(f'notification_switch_handler() Session error: {error}')
+        await callback.message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     try:
         if new_notification_status == 1:
@@ -119,6 +123,8 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
 
     except Exception as error:
         print(f'notification_switch_handler() error: {error}')
+        await callback.message.answer(await messages.ERROR(error))
+        return
 
 
 # Команда /stats
@@ -143,6 +149,8 @@ async def stats_command_handler(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'stats_command_handler() Session error: {error}')
+        await message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     try:
         await message.answer(
@@ -152,3 +160,5 @@ async def stats_command_handler(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'stats_command_handler() error: {error}')
+        await message.answer(await messages.ERROR(error))
+        return

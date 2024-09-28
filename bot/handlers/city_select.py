@@ -44,6 +44,8 @@ async def request_for_city(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'request_for_city() Session error: {error}')
+        await message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     await message.answer(text=messages.WRITE_CITY)
 
@@ -80,6 +82,8 @@ async def search_city_handler(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'search_city_handler() Session error: {error}')
+        await message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     try:
         if len(cities_dict['response']['items']) != 0:
@@ -97,6 +101,8 @@ async def search_city_handler(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'search_city_handler() error: {error}')
+        await message.answer(await messages.ERROR(error))
+        return
 
 
 # Выбор города
@@ -148,6 +154,8 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
 
     except Exception as error:
         print(f'add_city_handler() Session error: {error}')
+        await callback.message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     try:
         await callback.answer(messages.SUCCESS_CITY_CONNECTED)
@@ -156,3 +164,5 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
 
     except Exception as error:
         print(f'add_city_handler() error: {error}')
+        await callback.message.answer(await messages.ERROR(error))
+        return

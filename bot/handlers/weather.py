@@ -1,4 +1,4 @@
-from aiogram import F, Router, Bot
+from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
@@ -74,6 +74,8 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
 
     except Exception as error:
         print(f'weather_callback_handler() Session error: {error}')
+        await callback.message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     # Вывод ответа
     try:
@@ -107,6 +109,8 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
 
     except Exception as error:
         print(f'weather_callback_handler() error: {error}')
+        await callback.message.answer(await messages.ERROR(error))
+        return
 
 
 # Вывод погоды при вводе команды
@@ -152,6 +156,9 @@ async def weather_command_handler(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'weather_command_handler() Session error: {error}')
+        await loading_message.delete()
+        await message.answer(await messages.DATABASE_ERROR(error))
+        return
 
     try:
         await loading_message.edit_text(
@@ -162,3 +169,5 @@ async def weather_command_handler(message: Message, state: FSMContext):
 
     except Exception as error:
         print(f'weather_command_handler() error: {error}')
+        await message.answer(await messages.ERROR(error))
+        return

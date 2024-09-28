@@ -261,3 +261,11 @@ async def STATS(month_requests, users):
 
     message += f'\nВсего: {requests_amount}/1000 шт.'
     return message
+
+
+async def DATABASE_ERROR(error):
+    return f'Произошла ошибка с базой данных\n\nПодробнее: {error}'
+
+
+async def ERROR(error):
+    return f'Произошла ошибка\n\nПодробнее: {error}'

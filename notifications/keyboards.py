@@ -2,42 +2,6 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 
 # Выбор города
-async def SELECT_CITY(cities_list):
-    markup = []
-    for city in cities_list['response']['items']:
-        button_text = ''
-
-        # Получение названия населенного пункта
-        if city['name']:
-            button_text += city['name']
-
-        # Получение субъекта
-        if city['district']:
-            button_text += f", {city['district']['name']}"
-
-        # Получение названия страны
-        if city['country']['name']:
-            button_text += f", {city['country']['name']}"
-
-        # Проверка на аэропорт
-        if city['kind'] == 'A':
-            button_text = f'✈️ {button_text}'
-
-        # Получение флага страны
-        country_code = city['country']['code']
-        flag = chr(ord(country_code[0]) + 0x1F1E6 - ord('A')) + chr(ord(country_code[1]) + 0x1F1E6 - ord('A'))
-
-        # Текст кнопки
-        button_text = f'{flag} {button_text}'
-
-        # Добавление кнопки в клавиатуру
-        markup.append([InlineKeyboardButton(text=button_text, callback_data= f"add_city {city['id']}")])
-
-    keyboard = InlineKeyboardMarkup(inline_keyboard= markup)
-    return keyboard
-
-
-# Выбор города
 async def MENU(city_url, request_type, notification_status):
 
     # Проверка на статус уведомлений
