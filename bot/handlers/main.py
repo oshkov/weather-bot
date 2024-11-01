@@ -3,6 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from database import Database
+from cache import Cache
 import config
 import messages
 import keyboards
@@ -11,6 +12,7 @@ import handlers.city_select as city_select
 
 router = Router()
 database = Database(config.DATABASE_URL)
+cache = Cache(config.REDIS_URL)
 
 
 # Команда /start
@@ -136,7 +138,7 @@ async def stats_command_handler(message: Message, state: FSMContext):
     # Проверка на доступ к боту
     if str(message.from_user.id) not in config.USERS:
         return
-    
+
     # Создание сессии
     try:
         async for session in database.get_session():
@@ -153,8 +155,11 @@ async def stats_command_handler(message: Message, state: FSMContext):
         return
 
     try:
+        redis_connect = await cache.check_connect()
+        db_connect = await database.check_connect()
+
         await message.answer(
-            text=await messages.STATS(month_requests, users),
+            text=await messages.STATS(month_requests, users, redis_connect, db_connect),
             parse_mode='html'
         )
 

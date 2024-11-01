@@ -5,6 +5,7 @@ from aiogram import Bot
 
 from database import Database
 from gismeteo_api import Gismeteo
+from cache import Cache
 import config
 import keyboards
 import messages
@@ -14,9 +15,11 @@ moscow_tz = pytz.timezone('Europe/Moscow') # Часовой пояс Москв�
 bot = Bot(token=config.BOT_TOKEN)
 database = Database(config.DATABASE_URL)
 gismeteo = Gismeteo(config.GISMETEO_API_TOKEN)
+cache = Cache(config.REDIS_URL)
 
 
 # Словарь с временными данными {"id города":"данные о погоде"}
+# Сначала данные собираются в словарь а потом в одном цикле происходит рассылка уведомлений
 city_data_dict = {}
 
 
@@ -35,12 +38,20 @@ async def send_notification(request_type):
                 if user.city_id not in city_data_dict:
 
                     # Проверка на наличие кэша в бд
-                    weather_cache = await database.check_cache(session, user.city_id, request_type)
+                    weather_cache = await cache.check_cache(user.city_id, request_type)
+
                     if weather_cache:
                         weather = weather_cache
+
                     else:
+                        # Получение данных от гисметео
                         weather = gismeteo.get_weather(user.city_id, request_type).json()
-                        await database.create_cache(session, 'bot', user.city_id, request_type, weather)
+
+                        # Запись в бд о запросе
+                        await database.create_request(session, 'bot', user.city_id, request_type, weather)
+                        
+                        # Запись ответа в кэш
+                        await cache.create_cache(user.city_id, request_type, weather)
 
                     # Добавление информации о погоде в словарь
                     city_data_dict[user.city_id] = weather

@@ -5,6 +5,7 @@ from aiogram.fsm.state import StatesGroup, State
 
 from database import Database
 from gismeteo_api import Gismeteo
+from cache import Cache
 import config
 import keyboards
 import messages
@@ -14,6 +15,7 @@ import handlers.weather as weather
 router = Router()
 gismeteo = Gismeteo(config.GISMETEO_API_TOKEN)
 database = Database(config.DATABASE_URL)
+cache = Cache(config.REDIS_URL)
 
 
 class City(StatesGroup):
@@ -71,14 +73,20 @@ async def search_city_handler(message: Message, state: FSMContext):
         async for session in database.get_session():
 
             # Проверка на наличие кэша в бд
-            city_cache = await database.check_cache(session, city_name, request_type)
+            city_cache = await cache.check_cache(city_name, request_type)
 
             if city_cache:
                 cities_dict = city_cache
 
             else:
+                # Получение данных от гисметео
                 cities_dict = gismeteo.get_cities(city_name).json()
-                await database.create_cache(session, message.from_user.id, city_name, request_type, cities_dict)
+
+                # Запись в бд о запросе
+                await database.create_request(session, message.from_user.id, city_name, request_type, cities_dict)
+
+                # Запись ответа в кэш
+                await cache.create_cache(city_name, request_type, cities_dict)
 
     except Exception as error:
         print(f'search_city_handler() Session error: {error}')
