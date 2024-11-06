@@ -1,6 +1,7 @@
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+import logging
 
 from database import Database
 from cache import Cache
@@ -38,7 +39,7 @@ async def start_handler(message: Message, state: FSMContext):
                 return
             
     except Exception as error:
-        print(f'start_handler() Session error: {error}')
+        logging.error(f'start_handler() Session error: {error}')
         await message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -47,7 +48,7 @@ async def start_handler(message: Message, state: FSMContext):
         await city_select.request_for_city(message, state)
 
     except Exception as error:
-        print(f'start_handler() error: {error}')
+        logging.error(f'start_handler() error: {error}')
 
 
 # Команда /about
@@ -101,7 +102,7 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
             await session.commit()
 
     except Exception as error:
-        print(f'notification_switch_handler() Session error: {error}')
+        logging.error(f'notification_switch_handler() Session error: {error}')
         await callback.message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -124,7 +125,7 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
         )
 
     except Exception as error:
-        print(f'notification_switch_handler() error: {error}')
+        logging.error(f'notification_switch_handler() error: {error}')
         await callback.message.answer(await messages.ERROR(error))
         return
 
@@ -150,7 +151,7 @@ async def stats_command_handler(message: Message, state: FSMContext):
             users = await database.get_all_users(session)
 
     except Exception as error:
-        print(f'stats_command_handler() Session error: {error}')
+        logging.error(f'stats_command_handler() Session error: {error}')
         await message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -164,6 +165,6 @@ async def stats_command_handler(message: Message, state: FSMContext):
         )
 
     except Exception as error:
-        print(f'stats_command_handler() error: {error}')
+        logging.error(f'stats_command_handler() error: {error}')
         await message.answer(await messages.ERROR(error))
         return

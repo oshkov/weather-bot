@@ -2,6 +2,7 @@ import pytz
 from datetime import datetime
 import asyncio
 from aiogram import Bot
+import logging
 
 from database import Database
 from gismeteo_api import Gismeteo
@@ -16,6 +17,10 @@ bot = Bot(token=config.BOT_TOKEN)
 database = Database(config.DATABASE_URL)
 gismeteo = Gismeteo(config.GISMETEO_API_TOKEN)
 cache = Cache(config.REDIS_URL)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 # Словарь с временными данными {"id города":"данные о погоде"}
@@ -57,7 +62,7 @@ async def send_notification(request_type):
                     city_data_dict[user.city_id] = weather
 
     except Exception as error:
-        print(f'send_notification() Session error: {error}')
+        logging.error(f'send_notification() Session error: {error}')
 
     try:
         for user in users_with_notifications:
@@ -85,11 +90,11 @@ async def send_notification(request_type):
         city_data_dict.clear()
 
     except Exception as error:
-        print(f'send_notification() error: {error}')
+        logging.error(f'send_notification() error: {error}')
 
 
 async def main():
-    print('Уведомления запущены')
+    logging.info('Уведомления запущены')
     while True:
         # Получаем текущее время в Москве
         moscow_time = datetime.now(moscow_tz)

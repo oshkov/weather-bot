@@ -1,5 +1,6 @@
 import asyncio
 from aiogram import Bot, Dispatcher
+import logging
 
 import config
 import handlers.city_select as city_select
@@ -14,11 +15,16 @@ dp.include_routers(
     main.router,
     weather.router
 )
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 
 # Запуск бота
 async def start_bot():
-    print('Бот запущен')
+    logging.info('Бот запущен')
     await dp.start_polling(bot)
 
 

@@ -4,7 +4,7 @@ from sqlalchemy import select, and_
 from models import UserModel, RequestModel
 import datetime
 import pytz
-import json
+import logging
 
 
 class Database:
@@ -54,7 +54,7 @@ class Database:
             return True
 
         except Exception as error:
-            print(f'add_user() error: {error}')
+            logging.error(f'add_user() error: {error}')
             return False
         
 
@@ -72,7 +72,7 @@ class Database:
             return True
 
         except Exception as error:
-            print(f'add_city() error: {error}')
+            logging.error(f'add_city() error: {error}')
             return False
         
 
@@ -85,7 +85,7 @@ class Database:
             return user
 
         except Exception as error:
-            print(f'get_user_information() error: {error}')
+            logging.error(f'get_user_information() error: {error}')
 
 
     # Кэширование ответа
@@ -122,7 +122,7 @@ class Database:
             return True
 
         except Exception as error:
-            print(f'create_request() error: {error}')
+            logging.error(f'create_request() error: {error}')
             return False
 
 
@@ -144,7 +144,7 @@ class Database:
                 return users
 
         except Exception as error:
-            print(f'get_users_with_notifications() error: {error}')
+            logging.error(f'get_users_with_notifications() error: {error}')
 
 
     # Проверить лимит запросов пользователя в этом месяце
@@ -177,7 +177,7 @@ class Database:
                 return False
 
         except Exception as error:
-            print(f'check_allowed_requests() error: {error}')
+            logging.error(f'check_allowed_requests() error: {error}')
 
 
     # Получение всех запросов за месяц
@@ -198,7 +198,7 @@ class Database:
             return month_requests
 
         except Exception as error:
-            print(f'get_month_requests() error: {error}')
+            logging.error(f'get_month_requests() error: {error}')
 
 
     # Получение всех пользователей
@@ -210,7 +210,7 @@ class Database:
             return users
 
         except Exception as error:
-            print(f'get_all_users() error: {error}')
+            logging.error(f'get_all_users() error: {error}')
 
     # Проверка подключения к БД
     async def check_connect(self):
@@ -222,5 +222,5 @@ class Database:
                 await connection.execute(text("SELECT 1"))  # Выполняем простейший запрос
             return True
         except Exception as error:
-            print(error)
+            logging.error(error)
             return False

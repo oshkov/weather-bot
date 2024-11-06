@@ -1,5 +1,6 @@
 import aioredis
 import json
+import logging
 
 
 class Cache:
@@ -28,10 +29,10 @@ class Cache:
 
             cache_key = f'{city_id}_{request_type}'
             await self.redis_client.setex(cache_key, ttl, json.dumps(json_response))
-            print(f'Кэш записан: {cache_key}')
+            logging.info(f'Кэш записан: {cache_key}')
 
         except Exception as error:
-            print(f'create_cache() error: {error}')
+            logging.error(f'create_cache() error: {error}')
             return False
         
     # Проверка на наличие кэшированного ответа
@@ -51,10 +52,10 @@ class Cache:
             cached_response = await self.redis_client.get(cache_key)
 
             if cached_response:
-                print(f'Кэш получен: {cache_key}')
+                logging.info(f'Кэш получен: {cache_key}')
                 return json.loads(cached_response)
             else:
                 return None
 
         except Exception as error:
-            print(f'check_cache() error: {error}')
+            logging.error(f'check_cache() error: {error}')

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import select, and_
 import datetime
 import pytz
-import json
+import logging
 
 
 from models import UserModel, RequestModel
@@ -60,7 +60,7 @@ class Database:
             return True
 
         except Exception as error:
-            print(f'create_request() error: {error}')
+            logging.error(f'create_request() error: {error}')
             return False
 
 
@@ -82,4 +82,4 @@ class Database:
                 return users
 
         except Exception as error:
-            print(f'get_users_with_notifications() error: {error}')
+            logging.error(f'get_users_with_notifications() error: {error}')

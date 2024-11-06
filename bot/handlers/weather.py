@@ -1,6 +1,7 @@
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+import logging
 
 from database import Database
 from gismeteo_api import Gismeteo
@@ -82,7 +83,7 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
                     return
 
     except Exception as error:
-        print(f'weather_callback_handler() Session error: {error}')
+        logging.error(f'weather_callback_handler() Session error: {error}')
         await callback.message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -117,7 +118,7 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
             )
 
     except Exception as error:
-        print(f'weather_callback_handler() error: {error}')
+        logging.error(f'weather_callback_handler() error: {error}')
         await callback.message.answer(await messages.ERROR(error))
         return
 
@@ -171,7 +172,7 @@ async def weather_command_handler(message: Message, state: FSMContext):
                     return
 
     except Exception as error:
-        print(f'weather_command_handler() Session error: {error}')
+        logging.error(f'weather_command_handler() Session error: {error}')
         await loading_message.delete()
         await message.answer(await messages.DATABASE_ERROR(error))
         return
@@ -184,6 +185,6 @@ async def weather_command_handler(message: Message, state: FSMContext):
         )
 
     except Exception as error:
-        print(f'weather_command_handler() error: {error}')
+        logging.error(f'weather_command_handler() error: {error}')
         await message.answer(await messages.ERROR(error))
         return

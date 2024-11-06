@@ -1,7 +1,8 @@
-from aiogram import Bot, F, Router
+from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+import logging
 
 from database import Database
 from gismeteo_api import Gismeteo
@@ -45,7 +46,7 @@ async def request_for_city(message: Message, state: FSMContext):
                 return
 
     except Exception as error:
-        print(f'request_for_city() Session error: {error}')
+        logging.error(f'request_for_city() Session error: {error}')
         await message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -89,7 +90,7 @@ async def search_city_handler(message: Message, state: FSMContext):
                 await cache.create_cache(city_name, request_type, cities_dict)
 
     except Exception as error:
-        print(f'search_city_handler() Session error: {error}')
+        logging.error(f'search_city_handler() Session error: {error}')
         await message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -108,7 +109,7 @@ async def search_city_handler(message: Message, state: FSMContext):
             await message.answer(text=messages.SELECT_CITY_ERROR)
 
     except Exception as error:
-        print(f'search_city_handler() error: {error}')
+        logging.error(f'search_city_handler() error: {error}')
         await message.answer(await messages.ERROR(error))
         return
 
@@ -161,7 +162,7 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
                 return
 
     except Exception as error:
-        print(f'add_city_handler() Session error: {error}')
+        logging.error(f'add_city_handler() Session error: {error}')
         await callback.message.answer(await messages.DATABASE_ERROR(error))
         return
 
@@ -171,6 +172,6 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
         await weather.weather_callback_handler(callback, state, from_city_select=True)
 
     except Exception as error:
-        print(f'add_city_handler() error: {error}')
+        logging.error(f'add_city_handler() error: {error}')
         await callback.message.answer(await messages.ERROR(error))
         return
