@@ -7,6 +7,7 @@ import logging
 from database import Database
 from gismeteo_api import Gismeteo
 from cache import Cache
+from utils import protected_route
 import config
 import keyboards
 import messages
@@ -25,6 +26,7 @@ class City(StatesGroup):
 
 # Запрос города
 @router.message(F.text == "/changecity")
+@protected_route
 async def request_for_city(message: Message, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
@@ -58,6 +60,7 @@ async def request_for_city(message: Message, state: FSMContext):
 
 # Поиск городов
 @router.message(City.request_for_city)
+@protected_route
 async def search_city_handler(message: Message, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
@@ -116,6 +119,7 @@ async def search_city_handler(message: Message, state: FSMContext):
 
 # Выбор города
 @router.callback_query(F.data.contains('add_city'))
+@protected_route
 async def add_city_handler(callback: CallbackQuery, state: FSMContext):
     # Проверка на доступ к боту
     if str(callback.from_user.id) not in config.USERS:
@@ -169,7 +173,8 @@ async def add_city_handler(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.answer(messages.SUCCESS_CITY_CONNECTED)
 
-        await weather.weather_callback_handler(callback, state, from_city_select=True)
+        # await weather.weather_callback_handler(callback, state, from_city_select=True)
+        await weather.weather_callback_handler(callback, state)
 
     except Exception as error:
         logging.error(f'add_city_handler() error: {error}')

@@ -6,6 +6,7 @@ import logging
 from database import Database
 from gismeteo_api import Gismeteo
 from cache import Cache
+from utils import protected_route
 import config
 import keyboards
 import messages
@@ -19,13 +20,10 @@ cache = Cache(config.REDIS_URL)
 
 # Вывод погоды при нажатии на клавиатуре
 @router.callback_query(F.data.contains('weather'))
-async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, from_city_select: bool = False):
+@protected_route
+async def weather_callback_handler(callback: CallbackQuery, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
-
-    # Проверка на доступ к боту
-    if str(callback.from_user.id) not in config.USERS:
-        return
 
     # Сообщение загрузки
     await callback.message.edit_text(
@@ -34,8 +32,8 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
         reply_markup=callback.message.reply_markup
     )
 
-    # Получение типа запроса
-    if from_city_select == True:
+    # Получение типа запроса (Если запрос после выбора города, то запрос погоды сейчас)
+    if callback.data.split()[0] == 'add_city':
         request_type = 'now'
     else:
         request_type = callback.data.split()[1]
@@ -125,13 +123,10 @@ async def weather_callback_handler(callback: CallbackQuery, state: FSMContext, f
 
 # Вывод погоды при вводе команды
 @router.message(F.text == "/weather")
+@protected_route
 async def weather_command_handler(message: Message, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
-
-    # Проверка на доступ к боту
-    if str(message.from_user.id) not in config.USERS:
-        return
     
     loading_message = await message.answer(messages.LOADING)
 

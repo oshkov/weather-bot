@@ -5,6 +5,7 @@ import logging
 
 from database import Database
 from cache import Cache
+from utils import protected_route
 import config
 import messages
 import keyboards
@@ -18,13 +19,10 @@ cache = Cache(config.REDIS_URL)
 
 # Команда /start
 @router.message(F.text.contains("/start"))
+@protected_route
 async def start_handler(message: Message, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
-
-    # Проверка на доступ к боту
-    if str(message.from_user.id) not in config.USERS:
-        return
 
     # Создание сессии
     try:
@@ -53,13 +51,10 @@ async def start_handler(message: Message, state: FSMContext):
 
 # Команда /about
 @router.message(F.text.contains("/about"))
+@protected_route
 async def about_command_handler(message: Message, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
-
-    # Проверка на доступ к боту
-    if str(message.from_user.id) not in config.USERS:
-        return
     
     await message.answer(
         text=messages.ABOUT,
@@ -69,6 +64,7 @@ async def about_command_handler(message: Message, state: FSMContext):
 
 # Переключение уведомлений
 @router.callback_query(F.data.contains('notification_switch'))
+@protected_route
 async def notification_switch_handler(callback: CallbackQuery, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
@@ -76,10 +72,6 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
     request_type = None
     if len(callback.data.split()) > 1:
         request_type = callback.data.split()[1]
-
-    # Проверка на доступ к боту
-    if str(callback.from_user.id) not in config.USERS:
-        return
 
     # Создание сессии
     try:
@@ -132,13 +124,10 @@ async def notification_switch_handler(callback: CallbackQuery, state: FSMContext
 
 # Команда /stats
 @router.message(F.text.contains("/stats"))
+@protected_route
 async def stats_command_handler(message: Message, state: FSMContext):
     # Сброс состояния при его налиции
     await state.clear()
-
-    # Проверка на доступ к боту
-    if str(message.from_user.id) not in config.USERS:
-        return
 
     # Создание сессии
     try:
