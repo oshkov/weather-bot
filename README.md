@@ -10,7 +10,7 @@
 ### В проекте были использованы: 
 - Aiogram 3
 - Gismeteo API
-- SQLalchemy (PostgreSQL, asyncpg)
+- SQLalchemy (PostgreSQL, aiosqlite)
 - Redis (aioredis)
 - Docker, Docker-compose
 

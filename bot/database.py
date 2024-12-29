@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import select, and_
-from models import UserModel, RequestModel
+from models import UserModel, RequestModel, Base
 import datetime
 import pytz
 import logging
@@ -16,6 +16,13 @@ class Database:
     def __init__(self, db_url):
         self.engine = create_async_engine(db_url)
         self.async_session = async_sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
+
+
+    # Создание таблиц в бд
+    async def init_tables(self):
+        async with self.engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            print("Таблицы успешно созданы")
 
 
     # Создание сессии
@@ -109,8 +116,7 @@ class Database:
                 creation_time = datetime.datetime.now(pytz.timezone('Europe/Moscow')),
                 creator_id = str(creator_id),
                 city_id = city_id,
-                request_type = request_type,
-                response_filename = None
+                request_type = request_type
             )
 
             # Добавление данных в сессию

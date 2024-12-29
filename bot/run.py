@@ -6,6 +6,7 @@ import config
 import handlers.city_select as city_select
 import handlers.main as main
 import handlers.weather as weather
+from database import Database
 
 
 bot = Bot(token=config.BOT_TOKEN)
@@ -24,6 +25,11 @@ logging.basicConfig(
 
 # Запуск бота
 async def start_bot():
+
+    db = Database(config.DATABASE_URL)
+    await db.init_tables()
+    logging.info('Таблицы в бд созданы')
+
     logging.info('Бот запущен')
     await dp.start_polling(bot)
 

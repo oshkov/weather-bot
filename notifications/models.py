@@ -12,7 +12,7 @@ class UserModel(Base):
 
     __tablename__ = 'users'
 
-    enter = Column(TIMESTAMP(timezone=True))
+    enter = Column(TIMESTAMP)
     id = Column(Text, primary_key=True)
     username = Column(Text)
     name = Column(Text)
@@ -26,13 +26,13 @@ class UserModel(Base):
 
 class RequestModel(Base):
     '''
-    Модель таблицы для хранение ответов от GismeteoAPI
+    Модель таблицы для хранение истории запросов пользователей
     '''
 
     __tablename__ = 'requests'
 
-    creation_time = Column(TIMESTAMP(timezone=True))
-    creator_id = Column(Text, primary_key=True)
+    request_id = Column(Integer, primary_key=True)
+    creation_time = Column(TIMESTAMP)
+    creator_id = Column(Text)
     city_id = Column(Text)
     request_type = Column(Text)
-    response_filename = Column(Text)

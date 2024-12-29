@@ -1,11 +1,14 @@
-version: "3.8"
 services:
   bot:
     build:
       context: ./bot
     container_name: bot
+    volumes:
+      - /.oshkov/weather-bot:/.oshkov/weather-bot
 
   notifications:
     build:
       context: ./notifications
     container_name: notifications
+    volumes:
+      - /.oshkov/weather-bot:/.oshkov/weather-bot

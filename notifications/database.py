@@ -47,8 +47,7 @@ class Database:
                 creation_time = datetime.datetime.now(pytz.timezone('Europe/Moscow')),
                 creator_id = str(creator_id),
                 city_id = city_id,
-                request_type = request_type,
-                response_filename = None
+                request_type = request_type
             )
 
             # Добавление данных в сессию

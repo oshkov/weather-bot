@@ -8,13 +8,9 @@ def load_config(file_path):
 
 config = load_config('config.json')['config-prod']
 
-DB_HOST = config['db_host']
-DB_PORT = config['db_port']
-DB_NAME = config['db_name']
-DB_USER = config['db_user']
-DB_PASSWORD = config['db_password']
+PATH_TO_DB = config['path_to_db']
 BOT_TOKEN = config['bot_token']
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = f"sqlite+aiosqlite:////{PATH_TO_DB}weather_bot.db"
 GISMETEO_API_TOKEN = config['gismeteo_api_token']
 REDIS_HOST = config['redis_host']
 REDIS_PORT = config['redis_port']
