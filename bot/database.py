@@ -7,66 +7,41 @@ import pytz
 import logging
 
 
-class Database:
-    '''
-    Класс для работы с базой данных
-    '''
+class DatabaseError(Exception):
+    '''Исключение для ошибок в базе данных'''
+    
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
-    # Инициализация
+
+class Database:
+    '''Класс для работы с базой данных'''
+
     def __init__(self, db_url):
+        '''Инициализация'''
+
         self.engine = create_async_engine(db_url)
         self.async_session = async_sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
 
 
-    # Создание таблиц в бд
     async def init_tables(self):
+        '''Создание таблиц в бд'''
+
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-            print("Таблицы успешно созданы")
 
 
-    # Создание сессии
     async def get_session(self):
+        '''Создание сессии'''
+
         async with self.async_session() as session:
             yield session
-
-
-    # Добавление информации о пользователе в БД
-    async def add_user(self, session, message):
-        try:
-            # Проверка на наличие пользователя в таблице
-            user_in_db = await session.get(UserModel, str(message.from_user.id))
-
-            # Создание записи в бд, если ее не было
-            if user_in_db is None:
-
-                user_info = UserModel(
-                    enter = datetime.datetime.now(pytz.timezone('Europe/Moscow')),
-                    id = str(message.from_user.id),
-                    username = message.from_user.username,
-                    name = message.from_user.first_name,
-                    lastname = message.from_user.last_name,
-                    allowed_requests = None,
-                    city = None,
-                    city_id = None,
-                    notification_status = 1
-                )
-
-                # Добавление данных в сессию
-                session.add(user_info)
-
-                # Добавление данных в бд и сохранение
-                await session.commit()
-
-            return True
-
-        except Exception as error:
-            logging.error(f'add_user() error: {error}')
-            return False
         
 
-    # Привязка города к пользователю
     async def add_city(self, session, message, city_id, city_name, city_url):
+        '''Привязка города к пользователю'''
+
         try:
             user = await session.get(UserModel, str(message.from_user.id))
             user.city = city_name
@@ -80,11 +55,12 @@ class Database:
 
         except Exception as error:
             logging.error(f'add_city() error: {error}')
-            return False
+            raise DatabaseError(error)
         
 
-    # Получение данных о пользователе
     async def get_user_information(self, session, callback):
+        '''Получение данных о пользователе'''
+
         try:
             user = await session.get(UserModel, str(callback.from_user.id))
 
@@ -93,10 +69,12 @@ class Database:
 
         except Exception as error:
             logging.error(f'get_user_information() error: {error}')
+            raise DatabaseError(error)
 
 
-    # Кэширование ответа
-    async def create_request(self, session, creator_id, city_id, request_type, json_response):
+    async def create_request(self, session, creator_id, city_id, request_type):
+        '''Сохранение запроса в бд'''
+
         try:
             # Определение типа запроса
             if request_type in ['today', 'tomorrow', '10-days']:
@@ -125,15 +103,14 @@ class Database:
             # Сохранение данных в бд
             await session.commit()
 
-            return True
-
         except Exception as error:
             logging.error(f'create_request() error: {error}')
-            return False
+            raise DatabaseError(error)
 
 
-    # Получение списка пользователей у кого включены уведомления
     async def get_users_with_notifications(self, session):
+        '''Получение списка пользователей у кого включены уведомления'''
+
         try:
             users = await session.execute(
                 select(UserModel)
@@ -151,10 +128,12 @@ class Database:
 
         except Exception as error:
             logging.error(f'get_users_with_notifications() error: {error}')
+            raise DatabaseError(error)
 
 
-    # Проверить лимит запросов пользователя в этом месяце
     async def check_allowed_requests(self, session, user_id):
+        '''Проверить лимит запросов пользователя в этом месяце'''
+
         try:
             # Получение количества разрешенных запросов для пользователя
             user = await session.get(UserModel, str(user_id))
@@ -184,10 +163,12 @@ class Database:
 
         except Exception as error:
             logging.error(f'check_allowed_requests() error: {error}')
+            raise DatabaseError(error)
 
 
-    # Получение всех запросов за месяц
     async def get_month_requests(self, session):
+        '''Получение всех запросов за месяц'''
+
         try:
             # Начало текущего месяца
             now = datetime.datetime.now()
@@ -205,10 +186,12 @@ class Database:
 
         except Exception as error:
             logging.error(f'get_month_requests() error: {error}')
+            raise DatabaseError(error)
 
 
-    # Получение всех пользователей
     async def get_all_users(self, session):
+        '''Получение всех пользователей'''
+
         try:
             users = await session.execute(select(UserModel))
             users = [row for row in users.scalars()]
@@ -217,16 +200,4 @@ class Database:
 
         except Exception as error:
             logging.error(f'get_all_users() error: {error}')
-
-    # Проверка подключения к БД
-    async def check_connect(self):
-        try:
-            # Открываем соединение и выполняем простой запрос
-            async with self.engine.begin() as connection:
-                from sqlalchemy import text
-
-                await connection.execute(text("SELECT 1"))  # Выполняем простейший запрос
-            return True
-        except Exception as error:
-            logging.error(error)
-            return False
+            raise DatabaseError(error)

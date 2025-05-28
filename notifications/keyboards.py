@@ -1,8 +1,8 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 
-# Выбор города
 async def MENU(city_url, request_type, notification_status):
+    '''Меню'''
 
     # Проверка на статус уведомлений
     if notification_status == 1:

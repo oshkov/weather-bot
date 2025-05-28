@@ -5,8 +5,15 @@ import datetime
 import pytz
 import logging
 
-
 from models import UserModel, RequestModel
+
+
+class DatabaseError(Exception):
+    '''Исключение для ошибок в базе данных'''
+    
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 
 class Database:
@@ -26,8 +33,8 @@ class Database:
             yield session
 
 
-    # Кэширование ответа
-    async def create_request(self, session, creator_id, city_id, request_type, json_response):
+    # Сохранение запроса в бд
+    async def create_request(self, session, creator_id, city_id, request_type):
         try:
             # Определение типа запроса
             if request_type in ['today', 'tomorrow', '10-days']:
@@ -56,11 +63,9 @@ class Database:
             # Сохранение данных в бд
             await session.commit()
 
-            return True
-
         except Exception as error:
             logging.error(f'create_request() error: {error}')
-            return False
+            raise DatabaseError(error)
 
 
     # Получение списка пользователей у кого включены уведомления
@@ -82,3 +87,4 @@ class Database:
 
         except Exception as error:
             logging.error(f'get_users_with_notifications() error: {error}')
+            raise DatabaseError(error)

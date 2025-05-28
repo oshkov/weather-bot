@@ -1,8 +1,9 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 
-# Выбор города
 async def SELECT_CITY(cities_list):
+    '''Выбор города'''
+
     markup = []
     for city in cities_list['response']['items']:
         button_text = ''
@@ -37,8 +38,8 @@ async def SELECT_CITY(cities_list):
     return keyboard
 
 
-# Выбор города
 async def MENU(city_url, request_type, notification_status):
+    '''Меню'''
 
     # Проверка на статус уведомлений
     if notification_status == 1:

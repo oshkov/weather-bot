@@ -1,18 +1,23 @@
 import json
+from dotenv import load_dotenv
+import os
 
-# Открытие конфига из JSON-файла
-def load_config(file_path):
+
+load_dotenv()
+
+def load_json(file_path):
+    '''Открытие JSON-файла'''
+
     with open(file_path, 'r', encoding='utf-8') as file:
         config = json.load(file)
+
     return config
 
-config = load_config('config.json')['config-prod']
 
-PATH_TO_DB = config['path_to_db']
-BOT_TOKEN = config['bot_token']
-DATABASE_URL = f"sqlite+aiosqlite:////{PATH_TO_DB}weather_bot.db"
-GISMETEO_API_TOKEN = config['gismeteo_api_token']
-REDIS_HOST = config['redis_host']
-REDIS_PORT = config['redis_port']
-REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
-USERS = config['users']
+BOT_TOKEN = os.environ.get('bot_token')
+DATABASE_URL = os.environ.get('database_path')
+REDIS_URL = os.environ.get('redis_url')
+GISMETEO_API_TOKEN = os.environ.get('gismeteo_api_token')
+USERS_JSON = os.environ.get('users_json_path')
+
+USERS = load_json(USERS_JSON)['users']
